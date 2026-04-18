@@ -7,38 +7,47 @@ const STROOP_DECIMALS = 7;
 const STROOPS_PER_USDC = BigInt(10 ** STROOP_DECIMALS);
 
 /**
- * Converts a USDC amount (human readable) to stroops (bigint).
- * @param amount The amount in USDC (e.g., "10.5" or 10.5)
- * @returns The amount in stroops as a BigInt
+ * Converts a USDC amount to stroops (bigint).
  */
-export function toStroops(amount: string | number): bigint {
-    const value = typeof amount === 'number' ? amount.toString() : amount;
-    const [integers, decimals = ''] = value.split('.');
-
-  let stroopsStr = integers + decimals.padEnd(STROOP_DECIMALS, '0').slice(0, STROOP_DECIMALS);
-    return BigInt(stroopsStr);
+export function toStroops(amount: number | string): bigint {
+      const value = typeof amount === 'number' ? amount.toFixed(STROOP_DECIMALS) : amount;
+      const [integers, decimals = ''] = value.split('.');
+      const stroopsStr = integers + decimals.padEnd(STROOP_DECIMALS, '0').slice(0, STROOP_DECIMALS);
+      return BigInt(stroopsStr);
 }
 
 /**
  * Converts stroops to a human-readable USDC amount.
- * @param stroops The amount in stroops (bigint or string)
- * @returns The amount in USDC as a number
  */
 export function fromStroops(stroops: bigint | string): number {
-    const value = typeof stroops === 'string' ? BigInt(stroops) : stroops;
-    return Number(value) / Number(STROOPS_PER_USDC);
+      const value = typeof stroops === 'string' ? BigInt(stroops) : stroops;
+      return Number(value) / Number(STROOPS_PER_USDC);
 }
 
 /**
  * Formats a USDC amount for display.
- * @param amount The amount in USDC
- * @returns A formatted string (e.g., "$1,234.56")
  */
-export function formatUSDC(amount: number): string {
-    return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-    }).format(amount);
+export function formatUSDC(amount: number, decimals: number = 2): string {
+      return new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: 'USD',
+              minimumFractionDigits: decimals,
+              maximumFractionDigits: decimals,
+      }).format(amount);
+}
+
+/**
+ * Formats stroops for display.
+ */
+export function formatStroops(stroops: bigint | string): string {
+      return formatUSDC(fromStroops(stroops));
+}
+
+/**
+ * Validates if a number is a valid USDC amount (max 7 decimals).
+ */
+export function isValidUSDCAmount(amount: number): boolean {
+      if (amount <= 0) return false;
+      const parts = amount.toString().split('.');
+      return !parts[1] || parts[1].length <= STROOP_DECIMALS;
 }
