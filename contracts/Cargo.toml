@@ -1,0 +1,8 @@
+[workspace]
+  members = [
+        "src/escrow",
+        "src/repayment",
+        "src/credit_line",
+    ]
+    resolver = "2"
+    
